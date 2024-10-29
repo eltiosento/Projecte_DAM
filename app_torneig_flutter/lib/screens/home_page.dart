@@ -17,6 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Future<List<TemporadaDTO>>? _temporadesRepository;
   late ScrollController _scrollControllerVertical;
   late ScrollController _scrollControllerHoritzontal;
   // Clave para la sección de normas
@@ -57,7 +58,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _dialogCrearNovaTemporada(BuildContext context) async {
+  Future<void> _dialogCrearNovaTemporada(BuildContext context) {
     final TextEditingController novaTemporadacontroller =
         TextEditingController();
 
@@ -92,10 +93,25 @@ class _HomePageState extends State<HomePage> {
                   );
                   return;
                 }
-
-                await _crearTemporada(novaTemporadacontroller.text);
-                if (!context.mounted) return;
-                Navigator.of(context).pop();
+                try {
+                  await TemporadaRepository.crearNovaTemporada(
+                    Ip.IP,
+                    novaTemporadacontroller.text,
+                  );
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Temporada creada correctament')),
+                  );
+                  Navigator.of(context).pop();
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text('Error al crear la temporada: $e')),
+                    );
+                  }
+                }
               },
             ),
           ],
@@ -104,32 +120,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> _crearTemporada(String nom) async {
-    try {
-      await TemporadaRepository.crearNovaTemporada(
-        Ip.IP,
-        nom,
-      );
-      setState(() {});
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Temporada creada correctament')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al crear la temporada: $e')),
-        );
-      }
-    }
-  }
-
   @override
   void initState() {
     super.initState();
     _scrollControllerVertical = ScrollController();
     _scrollControllerHoritzontal = ScrollController();
+    _temporadesRepository = TemporadaRepository.getTemporades(Ip.IP);
     loadUserRole();
   }
 
@@ -302,7 +298,7 @@ class _HomePageState extends State<HomePage> {
               height: isMobile(context) ? 10 : (isTablet(context) ? 20 : 80),
             ),
             FutureBuilder<List<TemporadaDTO>>(
-              future: TemporadaRepository.getTemporades(Ip.IP),
+              future: _temporadesRepository,
               builder: (BuildContext context,
                   AsyncSnapshot<List<TemporadaDTO>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -360,8 +356,12 @@ class _HomePageState extends State<HomePage> {
                     child: FloatingActionButton(
                       tooltip: 'Afegir nova Temporada',
                       heroTag: 2,
-                      onPressed: () {
-                        _dialogCrearNovaTemporada(context);
+                      onPressed: () async {
+                        await _dialogCrearNovaTemporada(context);
+                        setState(() {
+                          _temporadesRepository =
+                              TemporadaRepository.getTemporades(Ip.IP);
+                        });
                       },
                       elevation: 10,
                       backgroundColor: const Color(0xFFF4A261),
@@ -629,9 +629,12 @@ class _ContainerTemporadesState extends State<ContainerTemporades> {
                   style: ButtonStyle(
                       backgroundColor:
                           MaterialStateProperty.all(Colors.grey[300])),
-                  onPressed: () {
-                    _dialogModificarTemporada(
+                  onPressed: () async {
+                    await _dialogModificarTemporada(
                         context, widget.temporadaSeleccionada.nom!);
+                    if (!context.mounted) return;
+                    Navigator.pushNamedAndRemoveUntil(
+                        context, Routes.HOME, (route) => false);
                   },
                   child: Text('Editar',
                       style: TextStyle(fontSize: isMobile(context) ? 15 : 20))),
@@ -640,8 +643,11 @@ class _ContainerTemporadesState extends State<ContainerTemporades> {
               ),
               IconButton(
                 tooltip: 'Borrar Temporada',
-                onPressed: () {
-                  _dialogBorrarTemporada(context);
+                onPressed: () async {
+                  await _dialogBorrarTemporada(context);
+                  if (!context.mounted) return;
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, Routes.HOME, (route) => false);
                 },
                 icon: const Icon(Icons.delete, color: Colors.red),
               ),
@@ -652,8 +658,7 @@ class _ContainerTemporadesState extends State<ContainerTemporades> {
     );
   }
 
-  Future<void> _dialogModificarTemporada(
-      BuildContext context, String nom) async {
+  Future<void> _dialogModificarTemporada(BuildContext context, String nom) {
     final TextEditingController temporadaEditadacontroller =
         TextEditingController(text: nom);
 
@@ -688,12 +693,25 @@ class _ContainerTemporadesState extends State<ContainerTemporades> {
                   );
                   return;
                 }
-
-                await _modificarTemporada(temporadaEditadacontroller.text);
-                if (!context.mounted) return;
-                Navigator.of(context).pop();
-                Navigator.pushNamedAndRemoveUntil(
-                    context, Routes.HOME, (route) => false);
+                try {
+                  await TemporadaRepository.updateTemporada(
+                    Ip.IP,
+                    widget.temporadaSeleccionada.id!,
+                    temporadaEditadacontroller.text,
+                  );
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Temporada modificada correctament')),
+                  );
+                  Navigator.of(context).pop();
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text('Error al modificar la temporada: $e')));
+                    Navigator.of(context).pop();
+                  }
+                }
               },
             ),
           ],
@@ -702,28 +720,7 @@ class _ContainerTemporadesState extends State<ContainerTemporades> {
     );
   }
 
-  Future<void> _modificarTemporada(String nom) async {
-    try {
-      await TemporadaRepository.updateTemporada(
-        Ip.IP,
-        widget.temporadaSeleccionada.id!,
-        nom,
-      );
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Temporada modificada correctament')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al modificar la temporada: $e')),
-        );
-      }
-    }
-  }
-
-  Future<void> _dialogBorrarTemporada(BuildContext context) async {
+  Future<void> _dialogBorrarTemporada(BuildContext context) {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // No permitir cerrar el diálogo pulsando fuera
@@ -731,14 +728,8 @@ class _ContainerTemporadesState extends State<ContainerTemporades> {
         return AlertDialog(
           title:
               const Text('ADVERTÈNCIA!', style: TextStyle(color: Colors.red)),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text(
-                    'Estàs segur que vols borrar la Temporada ${widget.temporadaSeleccionada.nom}?\nBorraràs tots els equips, grups i partits associats a aquesta temporada!'),
-              ],
-            ),
-          ),
+          content: Text(
+              'Estàs segur que vols borrar la Temporada ${widget.temporadaSeleccionada.nom}?\nBorraràs tots els equips, grups i partits associats a aquesta temporada!'),
           actions: <Widget>[
             TextButton(
               child: const Text(
@@ -754,37 +745,27 @@ class _ContainerTemporadesState extends State<ContainerTemporades> {
                 style: TextStyle(color: Colors.red),
               ),
               onPressed: () async {
-                await _borrarTemporada();
-                if (!context.mounted) return;
-                Navigator.of(context).pop();
-                Navigator.pushNamedAndRemoveUntil(
-                    context, Routes.HOME, (route) => false);
+                try {
+                  await TemporadaRepository.borrarTemporada(
+                      Ip.IP, widget.temporadaSeleccionada.id!);
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Temporada borrada amb èxit!')),
+                  );
+                  Navigator.of(context).pop();
+                } catch (e) {
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error al borrar la Temporada: $e')),
+                  );
+                  Navigator.of(context).pop();
+                }
               },
             ),
           ],
         );
       },
     );
-  }
-
-  Future<void> _borrarTemporada() async {
-    try {
-      await TemporadaRepository.borrarTemporada(
-          Ip.IP, widget.temporadaSeleccionada.id!);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Temporada borrada amb èxit!')),
-        );
-      }
-      setState(() {
-        // Actualizar la lista de temporadas
-      });
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al borrar la Temporada: $e')),
-        );
-      }
-    }
   }
 }

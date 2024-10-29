@@ -66,6 +66,15 @@ const String icona62 = 'assets/icons/escudo62.png';
 const String icona63 = 'assets/icons/escudo63.png';
 const String icona64 = 'assets/icons/escudo64.png';
 const String icona65 = 'assets/icons/escudo65.png';
+const String icona66 = 'assets/icons/escudo66.png';
+const String icona67 = 'assets/icons/escudo67.png';
+const String icona68 = 'assets/icons/escudo68.png';
+const String icona69 = 'assets/icons/escudo69.png';
+const String icona70 = 'assets/icons/escudo70.png';
+const String icona71 = 'assets/icons/escudo71.png';
+const String icona72 = 'assets/icons/escudo72.png';
+const String icona73 = 'assets/icons/escudo73.png';
+const String icona74 = 'assets/icons/escudo74.png';
 
 String randomIconaEquip() {
   return [
@@ -135,5 +144,14 @@ String randomIconaEquip() {
     icona63,
     icona64,
     icona65,
-  ][Random().nextInt(65)];
+    icona66,
+    icona67,
+    icona68,
+    icona69,
+    icona70,
+    icona71,
+    icona72,
+    icona73,
+    icona74
+  ][Random().nextInt(74)];
 }

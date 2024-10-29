@@ -4,8 +4,10 @@
 class Ip {
   //ip AWS
   //static const IP = "18.101.94.248";
+  //ip dockeritzada
+  static const IP = "apitorneig";
   //ip casa
-  static const IP = "192.168.0.17:9090";
+  //static const IP = "192.168.0.17:9090";
   //static const IP = "localhost";
   //ip escola
   //static const IP = "172.25.141.18:9090"; //PC consergeria

@@ -20,6 +20,7 @@ class EquipsPage extends StatefulWidget {
 }
 
 class _EquipsPageState extends State<EquipsPage> {
+  Future<List<EquipSimpleDTO>>? _equipsRepository;
   int selectedIndexNavigatorBar = 0;
   String rol = '';
 
@@ -61,6 +62,8 @@ class _EquipsPageState extends State<EquipsPage> {
   @override
   void initState() {
     super.initState();
+    _equipsRepository =
+        EquipRepository.obtenirEquipsTemporada(Ip.IP, widget.idTemporada);
     loadUserRole();
   }
 
@@ -233,8 +236,7 @@ class _EquipsPageState extends State<EquipsPage> {
               ),
             ),
             FutureBuilder<List<EquipSimpleDTO>>(
-              future: EquipRepository.obtenirEquipsTemporada(
-                  Ip.IP, widget.idTemporada),
+              future: _equipsRepository,
               builder: (BuildContext context,
                   AsyncSnapshot<List<EquipSimpleDTO>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -288,12 +290,17 @@ class _EquipsPageState extends State<EquipsPage> {
                                     Icons.delete,
                                     color: Colors.red,
                                   ),
-                                  onPressed: () {
-                                    _dialogBorrarEquip(
+                                  onPressed: () async {
+                                    await _dialogBorrarEquip(
                                       context,
                                       equip.id!,
                                       equip.nom!,
                                     );
+                                    setState(() {
+                                      _equipsRepository = EquipRepository
+                                          .obtenirEquipsTemporada(
+                                              Ip.IP, widget.idTemporada);
+                                    });
                                   },
                                 ),
                               Padding(
@@ -365,7 +372,7 @@ class _EquipsPageState extends State<EquipsPage> {
   }
 
   Future<void> _dialogBorrarEquip(
-      BuildContext context, int idEquip, String nom) async {
+      BuildContext context, int idEquip, String nom) {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // No permitir cerrar el diálogo pulsando fuera
@@ -393,10 +400,21 @@ class _EquipsPageState extends State<EquipsPage> {
                 'Confirmar',
                 style: TextStyle(color: Colors.red),
               ),
-              onPressed: () {
-                _borrarEquip(idEquip);
-                Navigator.of(context).pop();
-                setState(() {});
+              onPressed: () async {
+                try {
+                  await EquipRepository.borrarEquip(Ip.IP, idEquip);
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Equip borrat amb èxit!!')),
+                  );
+                  Navigator.of(context).pop();
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error al borrar el equip: $e')),
+                    );
+                  }
+                }
               },
             ),
           ],
@@ -404,126 +422,4 @@ class _EquipsPageState extends State<EquipsPage> {
       },
     );
   }
-
-  Future<void> _borrarEquip(int idEquip) async {
-    try {
-      await EquipRepository.borrarEquip(Ip.IP, idEquip);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Equip borrat amb èxit!!')),
-        );
-      }
-      setState(() {
-        // Actualizar la lista de temporadas
-      });
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al borrar el equip: $e')),
-        );
-      }
-    }
-  }
 }
-/*
-class EditarTemporada extends StatefulWidget {
-  const EditarTemporada({
-    super.key,
-    required this.nomTemporada,
-    required this.idTemporada,
-  });
-
-  final String nomTemporada;
-  final int idTemporada;
-
-  @override
-  State<EditarTemporada> createState() => _EditarTemporadaState();
-}
-
-class _EditarTemporadaState extends State<EditarTemporada> {
-  late TextEditingController _nomController;
-
-  @override
-  void initState() {
-    super.initState();
-    _nomController = TextEditingController(text: widget.nomTemporada);
-  }
-
-  @override
-  void dispose() {
-    _nomController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _guardarTemporada() async {
-    try {
-      await TemporadaRepository.updateTemporada(
-        Ip.IP,
-        widget.idTemporada,
-        _nomController.text,
-      );
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Temporada actualitzada correctament')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al actualitzar la temporada: $e')),
-        );
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TextFormField(
-          controller: _nomController,
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: isMobile(context) ? 20 : 40,
-            fontFamily: 'Montserrat-bold',
-          ),
-          decoration: InputDecoration(
-            labelText: 'Nom de la temporada',
-            labelStyle: TextStyle(
-                color: Colors.orange,
-                fontSize: isMobile(context) ? 20 : 30,
-                fontFamily: 'Montserrat-bold' // Cambia el color del labelText
-                ),
-            border: const OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Colors.orange, // Cambia el color del borde
-              ),
-            ),
-            enabledBorder: const OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Colors
-                    .orange, // Cambia el color del borde cuando no está enfocado
-              ),
-            ),
-            focusedBorder: const OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Colors
-                    .blue, // Cambia el color del borde cuando está enfocado
-              ),
-            ),
-            filled: true,
-            fillColor: Colors.white,
-          ),
-        ),
-        SizedBox(
-          height: isMobile(context) ? 10 : (isTablet(context) ? 20 : 30),
-        ),
-        ElevatedButton(
-          onPressed: _guardarTemporada,
-          child: const Text('Guardar'),
-        ),
-      ],
-    );
-  }
-}
-*/
