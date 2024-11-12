@@ -11,11 +11,11 @@ Per poder posar en funcionament l'aplicació, és proporciona tot el necessari p
 - Client web desenvolupat amb flutter: 8080
 
 > [!NOTE]
-> Els port de la base de dades i de la Api es poden modificar al fitxer .env del projecte. I el de la web, directament al docker-compose.yml
+> Els ports de la base de dades i de la Api es poden modificar al fitxer .env del projecte. I el de la web, directament al docker-compose.yml
 
 ### EXECUCIÓ DELS CONTENIDORS
 
-Per poder desplegar l'aplicació es tan senzill com executar la següent instrucció a la terminal del sistema operatiu:
+Per poder desplegar l'aplicació es tan senzill com descarregar el projecte a un directori i desde l'arrel d'aquest executar la següent instrucció a la terminal del sistema operatiu:
 
 `docker-compose up`
 
@@ -27,6 +27,11 @@ Per poder desplegar l'aplicació es tan senzill com executar la següent instruc
 Un cop tot llançat i en funcionament, podem accedir a la documentació de la Api amb el següent enllaç:
 
 <http://localhost:9090/swagger-ui/index.html>
+
+> [!NOTE]
+> Com que també està la api desplegada en AWS es pot accedir amb aquest enllaç:
+> *http://18.101.94.248/swagger-ui/index.html*
+> Si no funciona comunicameu per a que renicie el servidor, ja que de vegades es cau. (Desconec el motiu)
 
 Degut a que la Api utilitza un sistema d'autenticació mitjançant JWT, hem d'hanar a l'apartat de ***Controlador d'usuaris Api*** i allí polsar sobre ***POST /api/auh/login***
 donar-li al botó ***Try it out*** i introduir les credencials per a que ens proporcione un token que utilitzarem per a l'autenticació.
@@ -62,6 +67,35 @@ Al executar, ens donarà a la resposta un token que hem de copiar i pegar al bot
 
 ### US DE L'APLICACIÓ CLIENT
 
-Finalment per accedir al lloc web que hem creat, tan sols hem d'accedir al següent enllaç:
+L'aplicació client desenvolupada en flutter, i dockeritzada per aquest projecte, està construida com a web amb l'instrucció: `flutter build web` i ataca a la api dockeritzada també, tot per a un entron Local.
+Si és volguera fer us de la api de AWS, hi ha que cambiar la ip per a la conexió al direcori:
+
+*app_torneig_flutter/lib/conf/ip.dart*
+
+```dart
+class Ip {
+  static const IP = "localhost:9090"; //Comenta per aquesta linia per fer us de AWS
+  //static const IP = "18.101.94.248"; //Descomenta per aquesta linia per fer us de AWS
+}
+```
+I hauriem de tornar a construir el build per a que agafe aquesta modificació. `flutter build web`
+
+Així que finalment, per accedir al lloc web que hem creat, tan sols hem d'accedir al següent enllaç:
 
 <http://localhost:8080>
+
+D'altra banda també he deixat l'aplicació Android per fer ús de l'aplicació desde qualsevol aparell que utilitze aquest SO, ja que està disenyada de forma responsiva.
+Amb aquest cas, ja podem fer us desde qualsevol lloc eixint del entorn local, degut a que aquesta està muntada per atacar la Api de AWS.
+
+### DIRECTORIS DEL PROJECTE
+
+Así indique cada directori que conté:
+
+- **BD**
+  - Conté un fitxer .sql per ejecutar l'escript i muntar les taules i les dades a la base de dades.
+  
+- **Torneig_Mort_Spring**
+  - Aquest directori conté tot el codi i treball realitzat amb Spring per desenvolupar la Api.
+
+- **app_torneig_flutter**
+  - Aquest directori trobem tot el treball fet amb flutter per desenvolupar el client.
