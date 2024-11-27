@@ -13,9 +13,48 @@ Per poder posar en funcionament l'aplicació, és proporciona tot el necessari p
 > [!NOTE]
 > Els ports de la base de dades i de la Api es poden modificar al fitxer .env del projecte. I el de la web, directament al docker-compose.yml
 
+### COMPILAR L'APLICACIÓ WEB PER A QUE PUGA CONECTAR AMB LA API
+
+L'aplicació client desenvolupada en flutter, per a que funcione correctament primerament hem de compilarla amb `flutter pub get`.
+Deprés hem d'anar a aquest directori:
+
+*app_torneig_flutter/lib/conf/ip.dart*
+
+I canviar localhost per la ip que tenim actualment per a que desde qualsevol altre dispositiu puga accedir a la api i poder fer les peticions que necessite.
+Amb localhost sols funcionarà desde el ordinador on montem els contenidors.
+
+```dart
+class Ip {
+  static const IP = "localhost:9090"; //Comenta per aquesta linia per fer us de AWS
+  //static const IP = "18.101.94.248"; //Descomenta per aquesta linia per fer us de AWS
+}
+```
+
+Després construir l'aplicació web amb `flutter build web` tot per a un entron Local.
+Si és volguera fer us de la api de AWS, hi ha que cambiar la ip per la que es veu a continuació:
+
+*app_torneig_flutter/lib/conf/ip.dart*
+
+```dart
+class Ip {
+  static const IP = "18.101.94.248"; // Us de AWS
+
+}
+```
+I hauriem de tornar a construir el build per a que agafe aquesta modificació. `flutter build web`
+
+Així que finalment, per accedir al lloc web que hem creat, tan sols hem d'accedir al següent enllaç:
+
+<http://localhost:8080>
+
+D'altra banda també he deixat l'aplicació Android per fer ús de l'aplicació desde qualsevol aparell que utilitze aquest SO, ja que està disenyada de forma responsiva.
+Amb aquest cas, ja podem fer us desde qualsevol lloc eixint del entorn local, degut a que aquesta està muntada per atacar la Api de AWS.
+
+
 ### EXECUCIÓ DELS CONTENIDORS
 
-Per poder desplegar l'aplicació es tan senzill com descarregar el projecte a un directori i desde l'arrel d'aquest executar la següent instrucció a la terminal del sistema operatiu:
+Un cop contruida l'aplicació web, ja podem crear els contenidors per a muntar l'entorn local. 
+Per poder desplegar l'aplicació es tan senzill com desde el directori l'arrel on es troba el fitxer docker-compose, executar la següent instrucció a la terminal del sistema operatiu:
 
 `docker-compose up`
 
@@ -64,28 +103,6 @@ Al executar, ens donarà a la resposta un token que hem de copiar i pegar al bot
   ]
 }
 ```
-
-### US DE L'APLICACIÓ CLIENT
-
-L'aplicació client desenvolupada en flutter, i dockeritzada per aquest projecte, està construida com a web amb l'instrucció: `flutter build web` i ataca a la api dockeritzada també, tot per a un entron Local.
-Si és volguera fer us de la api de AWS, hi ha que cambiar la ip per a la conexió al direcori:
-
-*app_torneig_flutter/lib/conf/ip.dart*
-
-```dart
-class Ip {
-  static const IP = "localhost:9090"; //Comenta per aquesta linia per fer us de AWS
-  //static const IP = "18.101.94.248"; //Descomenta per aquesta linia per fer us de AWS
-}
-```
-I hauriem de tornar a construir el build per a que agafe aquesta modificació. `flutter build web`
-
-Així que finalment, per accedir al lloc web que hem creat, tan sols hem d'accedir al següent enllaç:
-
-<http://localhost:8080>
-
-D'altra banda també he deixat l'aplicació Android per fer ús de l'aplicació desde qualsevol aparell que utilitze aquest SO, ja que està disenyada de forma responsiva.
-Amb aquest cas, ja podem fer us desde qualsevol lloc eixint del entorn local, degut a que aquesta està muntada per atacar la Api de AWS.
 
 ### DIRECTORIS DEL PROJECTE
 
