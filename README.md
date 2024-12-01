@@ -15,40 +15,55 @@ Per poder posar en funcionament l'aplicació, és proporciona tot el necessari p
 
 ### COMPILAR L'APLICACIÓ WEB PER A QUE PUGA CONECTAR AMB LA API
 
-L'aplicació client desenvolupada en flutter, per a que funcione correctament primerament hem de compilarla amb `flutter pub get`.
-Deprés hem d'anar a aquest directori:
+L’aplicació client, desenvolupada en Flutter, ha de ser compilada i configurada per connectar-se correctament amb l’API. Els passos són els següents:
+ 1. **Instal·lació de dependències**:
+     -	Executa la comanda següent al directori del client per descarregar totes les dependències necessàries:
+     
+    `flutter pub get`.
 
-*app_torneig_flutter/lib/conf/ip.dart*
+2.	**Configuració de l’IP del Servidor**:
+    - Accedeix al fitxer *app_torneig_flutter/lib/conf/ip.dart* i substitueix la variable IP per l’adreça IP real del servidor on s’executarà l’API:
 
-I canviar localhost per la ip que tenim actualment per a que desde qualsevol altre dispositiu puga accedir a la api i poder fer les peticions que necessite.
-Amb localhost sols funcionarà desde el ordinador on montem els contenidors.
-
-```dart
-class Ip {
-  static const IP = "localhost:9090"; //Comenta per aquesta linia per fer us de AWS
-  //static const IP = "18.101.94.248"; //Descomenta per aquesta linia per fer us de AWS
-}
-```
-
-Després construir l'aplicació web amb `flutter build web` tot per a un entron Local.
-Si és volguera fer us de la api de AWS, hi ha que cambiar la ip per la que es veu a continuació:
-
-*app_torneig_flutter/lib/conf/ip.dart*
 
 ```dart
 class Ip {
-  static const IP = "18.101.94.248"; // Us de AWS
-
+  static const IP = "<<ip>>:9090";
 }
 ```
-I hauriem de tornar a construir el build per a que agafe aquesta modificació. `flutter build web`
+  - Exemple per a un entorn local:
+  
+```dart
+class Ip {
+  static const IP = "192.168.1.100:9090";
+}
+```
+
+- Exemple per a un entorn de producció amb AWS:
+  
+```dart
+class Ip {
+  static const IP = "18.101.94.248:9090"; // AWS API
+}
+```
+3.	**Construcció de l’Aplicació Web:**
+     - Un cop configurada l’IP, compila l’aplicació per generar els fitxers necessaris:
+`flutter build web`
+
+    - Els fitxers es generaran a la carpeta build/web/.
+
+
 
 Així que finalment, per accedir al lloc web que hem creat, tan sols hem d'accedir al següent enllaç:
 
 <http://localhost:8080>
 
-D'altra banda també he deixat l'aplicació Android per fer ús de l'aplicació desde qualsevol aparell que utilitze aquest SO, ja que està disenyada de forma responsiva.
-Amb aquest cas, ja podem fer us desde qualsevol lloc eixint del entorn local, degut a que aquesta està muntada per atacar la Api de AWS.
+O per altra banda a altres dispositius a la mateixa xarxa: <http://ipPcOnEstaTotMuntat:8080>
+
+A més de la versió web, s’ha creat una aplicació Android per a ús mòbil. Aquesta aplicació es pot instal·lar en qualsevol dispositiu amb Android.
+Està dissenyada de forma responsiva per adaptar-se a diferents pantalles.
+Per defecte, està configurada per connectar-se a l’API de AWS, la qual cosa permet utilitzar-la des de qualsevol lloc fora de l’entorn local.
+________________________________________
+
 
 
 ### EXECUCIÓ DELS CONTENIDORS
