@@ -103,7 +103,7 @@ donar-li al botó ***Try it out*** i introduir les credencials per a que ens pro
 
 Usuaris predefinits:
 
-- Usuari administrador: `admin` i contrasenya `admin`.
+- Usuari administrador: *preguntar credencials.*
 - Usuari corrent: `alu` i contrasenya `alu`.
 
 > [!NOTE]
