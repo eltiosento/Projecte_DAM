@@ -2,10 +2,6 @@
 
 ## Repositori on s'allotja el projecte final de DAM, una aplicació per a gestionar un troneig esportiu.
 
-Aquest enllaç mostra l'aplicació web totalment desplegada a AWS:
-
- - <http://torneig-client.s3-website.eu-south-2.amazonaws.com>
-
 Per poder posar en funcionament l'aplicació, és proporciona tot el necessari per a que amb l'us de docker, l'usuari puga alçar un servei on poder utilitzar un navegador web i axí consumir l'aplicació.
 
 ### PORTS PELS QUE S'ESCOLTARÀ ELS DIFERENTS SERVEIS
@@ -89,7 +85,7 @@ Un cop tot llançat i en funcionament, podem accedir a la documentació de la Ap
 > [!NOTE]
 > Com que també està la api desplegada en AWS es pot accedir amb aquest enllaç:
 > *http://18.101.94.248/swagger-ui/index.html*
-> Si no funciona comunicameu per a que renicie el servidor, ja que de vegades es cau. (Desconec el motiu)
+> Actualment jo no està disponible.
 
 Degut a que la Api utilitza un sistema d'autenticació mitjançant JWT, hem d'hanar a l'apartat de ***Controlador d'usuaris Api*** i allí polsar sobre ***POST /api/auh/login***
 donar-li al botó ***Try it out*** i introduir les credencials per a que ens proporcione un token que utilitzarem per a l'autenticació.
